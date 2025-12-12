@@ -3,6 +3,8 @@ import { db } from './firebase'
 import { collection, addDoc, deleteDoc, doc, onSnapshot, setDoc, getDoc } from 'firebase/firestore'
 
 function App() {
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [transactions, setTransactions] = useState([])
   const [description, setDescription] = useState('')
   const [amount, setAmount] = useState('')
@@ -13,39 +15,59 @@ function App() {
 
   // Carregar dados do Firestore em tempo real - collections separadas
   useEffect(() => {
-    // Collection baseada na aba ativa
-    const collectionName = activeTab === 'andrey' ? 'transactions_andrey' : 'transactions_maria'
-    const transactionsRef = collection(db, collectionName)
+    setLoading(true)
+    setError(null)
     
-    const unsubscribe = onSnapshot(transactionsRef, (snapshot) => {
-      const transactionsData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }))
-      // Ordenar por data (mais recente primeiro)
-      transactionsData.sort((a, b) => {
-        const dateA = new Date(a.date || 0)
-        const dateB = new Date(b.date || 0)
-        return dateB - dateA
+    try {
+      // Collection baseada na aba ativa
+      const collectionName = activeTab === 'andrey' ? 'transactions_andrey' : 'transactions_maria'
+      const transactionsRef = collection(db, collectionName)
+      
+      const unsubscribe = onSnapshot(
+        transactionsRef, 
+        (snapshot) => {
+          const transactionsData = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          }))
+          // Ordenar por data (mais recente primeiro)
+          transactionsData.sort((a, b) => {
+            const dateA = new Date(a.date || 0)
+            const dateB = new Date(b.date || 0)
+            return dateB - dateA
+          })
+          setTransactions(transactionsData)
+          setLoading(false)
+        },
+        (error) => {
+          console.error('Erro ao carregar transações:', error)
+          setError('Erro ao carregar dados. Verifique sua conexão.')
+          setLoading(false)
+        }
+      )
+
+      // Carregar renda mensal (separada por pessoa)
+      const incomeCollection = activeTab === 'andrey' ? 'settings_andrey' : 'settings_maria'
+      const incomeRef = doc(db, incomeCollection, 'monthlyIncome')
+      getDoc(incomeRef).then((docSnap) => {
+        if (docSnap.exists()) {
+          const income = docSnap.data().value
+          setMonthlyIncome(income)
+          setMonthlyIncomeInput(income.toString())
+        } else {
+          setMonthlyIncome(0)
+          setMonthlyIncomeInput('')
+        }
+      }).catch((error) => {
+        console.error('Erro ao carregar renda mensal:', error)
       })
-      setTransactions(transactionsData)
-    })
 
-    // Carregar renda mensal (separada por pessoa)
-    const incomeCollection = activeTab === 'andrey' ? 'settings_andrey' : 'settings_maria'
-    const incomeRef = doc(db, incomeCollection, 'monthlyIncome')
-    getDoc(incomeRef).then((docSnap) => {
-      if (docSnap.exists()) {
-        const income = docSnap.data().value
-        setMonthlyIncome(income)
-        setMonthlyIncomeInput(income.toString())
-      } else {
-        setMonthlyIncome(0)
-        setMonthlyIncomeInput('')
-      }
-    })
-
-    return () => unsubscribe()
+      return () => unsubscribe()
+    } catch (error) {
+      console.error('Erro ao inicializar:', error)
+      setError('Erro ao conectar com o banco de dados.')
+      setLoading(false)
+    }
   }, [activeTab])
 
   // Transações já vêm filtradas da collection correta
@@ -208,6 +230,34 @@ function App() {
       style: 'currency',
       currency: 'BRL'
     }).format(value)
+  }
+
+  // Mostrar loading ou erro
+  if (loading) {
+    return (
+      <div className="app">
+        <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+          <p>Carregando...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="app">
+        <div style={{ textAlign: 'center', padding: '40px', color: '#ef4444' }}>
+          <p>{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="btn"
+            style={{ marginTop: '20px' }}
+          >
+            Tentar Novamente
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (

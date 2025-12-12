@@ -12,12 +12,16 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: 100vh;
-  padding: 20px;
+  padding: 10px;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 #root {
   max-width: 800px;
   margin: 0 auto;
+  width: 100%;
+  min-height: 100vh;
 }
 
 .app {
@@ -25,6 +29,9 @@ body {
   border-radius: 20px;
   padding: 30px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  min-height: calc(100vh - 20px);
+  box-sizing: border-box;
 }
 
 h1 {
@@ -215,6 +222,8 @@ h1 {
   align-items: center;
   border-left: 4px solid;
   transition: transform 0.2s;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .transaction-item:hover {
@@ -247,6 +256,8 @@ h1 {
 .transaction-amount {
   font-size: 1.2rem;
   font-weight: bold;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .transaction-item.income .transaction-amount {
@@ -267,6 +278,9 @@ h1 {
   font-size: 0.9rem;
   margin-left: 10px;
   transition: background 0.2s;
+  flex-shrink: 0;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .delete-btn:hover {
@@ -399,43 +413,171 @@ h1 {
   }
 }
 
-@media (max-width: 600px) {
+/* Melhorias para mobile */
+@media (max-width: 768px) {
+  body {
+    padding: 5px;
+  }
+
   .app {
-    padding: 20px;
+    padding: 15px;
+    border-radius: 15px;
+    min-height: calc(100vh - 10px);
   }
 
   h1 {
     font-size: 1.5rem;
+    margin-bottom: 15px;
+  }
+
+  .month-label {
+    font-size: 1rem;
+    margin-top: -15px;
+    margin-bottom: 15px;
+  }
+
+  .balance {
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  .balance h2 {
+    font-size: 0.85rem;
   }
 
   .balance .amount {
-    font-size: 2rem;
+    font-size: 1.8rem;
   }
 
   .tabs {
-    flex-direction: column;
+    flex-direction: row;
     gap: 5px;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #e0e0e0;
   }
 
   .tab {
-    width: 100%;
-    text-align: left;
-    border-bottom: none;
-    border-left: 3px solid transparent;
-    margin-bottom: 0;
+    flex: 1;
+    padding: 10px 15px;
+    font-size: 0.9rem;
+    text-align: center;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
   }
 
   .tab.active {
-    border-bottom-color: transparent;
-    border-left-color: #667eea;
+    border-bottom-color: #667eea;
+    border-left: none;
+  }
+
+  .form-section,
+  .income-section {
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+
+  .form-section h3,
+  .income-section h3 {
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+  }
+
+  .form-group input,
+  .form-group select {
+    padding: 10px;
+    font-size: 16px; /* Previne zoom no iOS */
+  }
+
+  .btn {
+    padding: 12px;
+    font-size: 1rem;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .transaction-item {
+    padding: 12px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .transaction-info {
+    width: 100%;
+  }
+
+  .transaction-amount {
+    font-size: 1.1rem;
+    align-self: flex-end;
+  }
+
+  .delete-btn {
+    margin-left: 0;
+    width: 100%;
+    padding: 10px;
+    font-size: 0.95rem;
+  }
+
+  .income-info {
+    padding: 15px;
+  }
+
+  .income-item {
+    padding: 10px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+
+  .income-label {
+    font-size: 0.9rem;
+  }
+
+  .income-value {
+    font-size: 1rem;
+  }
+
+  .love-message {
+    margin-top: 30px;
+    padding: 15px;
   }
 
   .love-text {
-    font-size: 2rem;
+    font-size: 1.8rem;
+    margin: 0 8px;
   }
 
   .heart {
     font-size: 1.5rem;
+  }
+
+  .transactions h3 {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 0;
+  }
+
+  .app {
+    border-radius: 0;
+    min-height: 100vh;
+    padding: 12px;
+  }
+
+  h1 {
+    font-size: 1.3rem;
+  }
+
+  .balance .amount {
+    font-size: 1.5rem;
+  }
+
+  .tab {
+    padding: 8px 10px;
+    font-size: 0.85rem;
   }
 }
 
