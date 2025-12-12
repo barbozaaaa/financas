@@ -10,7 +10,7 @@ function App() {
   const [monthlyIncome, setMonthlyIncome] = useState(0)
   const [monthlyIncomeInput, setMonthlyIncomeInput] = useState('')
   const [activeTab, setActiveTab] = useState('me') // 'me' ou 'her'
-  const [userName, setUserName] = useState('me') // 'me' ou 'her'
+  const [userName, setUserName] = useState(activeTab) // 'me' ou 'her' - sempre igual à aba ativa
 
   // Carregar dados do Firestore em tempo real
   useEffect(() => {
@@ -43,11 +43,9 @@ function App() {
   }, [])
 
   // Filtrar transações por aba ativa
-  const filteredTransactions = activeTab === 'all' 
-    ? transactions 
-    : transactions.filter(t => t.owner === activeTab)
+  const filteredTransactions = transactions.filter(t => t.owner === activeTab)
   
-  // Calcular saldo total (apenas da aba ativa)
+  // Calcular saldo total (apenas transações, renda mensal já está incluída como transação)
   const balance = filteredTransactions.reduce((total, transaction) => {
     return total + (transaction.type === 'income' ? transaction.amount : -transaction.amount)
   }, 0)
@@ -56,19 +54,13 @@ function App() {
   const totalIncome = filteredTransactions
     .filter(t => t.type === 'income')
     .reduce((total, transaction) => total + transaction.amount, 0)
-
+  
   // Calcular total de despesas (apenas da aba ativa)
   const totalExpenses = filteredTransactions
     .filter(t => t.type === 'expense')
     .reduce((total, transaction) => total + transaction.amount, 0)
-  
-  // Calcular totais gerais (ambos)
-  const allTransactions = transactions
-  const totalBalance = allTransactions.reduce((total, transaction) => {
-    return total + (transaction.type === 'income' ? transaction.amount : -transaction.amount)
-  }, 0)
 
-  // Definir renda mensal esperada
+  // Definir renda mensal esperada e adicionar automaticamente ao saldo
   const handleSetMonthlyIncome = async (e) => {
     e.preventDefault()
     const income = parseFloat(monthlyIncomeInput)
@@ -76,8 +68,44 @@ function App() {
       try {
         const incomeRef = doc(db, 'settings', 'monthlyIncome')
         await setDoc(incomeRef, { value: income })
+        
+        // Verificar se já existe uma transação de "Renda Mensal" deste mês
+        const currentMonth = new Date().getMonth()
+        const currentYear = new Date().getFullYear()
+        const existingIncome = transactions.find(t => 
+          t.owner === 'me' && 
+          t.description === 'Renda Mensal' &&
+          new Date(t.date).getMonth() === currentMonth &&
+          new Date(t.date).getFullYear() === currentYear
+        )
+        
+        if (!existingIncome) {
+          // Adicionar automaticamente como transação de renda
+          const incomeTransaction = {
+            description: 'Renda Mensal',
+            amount: income,
+            type: 'income',
+            owner: 'me', // Sempre adiciona como "me"
+            date: new Date().toISOString(),
+            dateFormatted: new Date().toLocaleDateString('pt-BR', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            })
+          }
+          await addDoc(collection(db, 'transactions'), incomeTransaction)
+        } else {
+          // Atualizar a transação existente
+          await setDoc(doc(db, 'transactions', existingIncome.id), {
+            ...existingIncome,
+            amount: income
+          })
+        }
+        
         setMonthlyIncome(income)
-        alert('Renda mensal definida com sucesso!')
+        alert('Renda mensal definida e adicionada ao saldo com sucesso!')
       } catch (error) {
         console.error('Erro ao salvar renda mensal:', error)
         alert('Erro ao salvar. Verifique se o Firebase está configurado.')
@@ -159,9 +187,15 @@ function App() {
     }).format(value)
   }
 
+  // Atualizar userName quando mudar a aba
+  useEffect(() => {
+    setUserName(activeTab)
+  }, [activeTab])
+
   return (
     <div className="app">
       <h1>💰 Controle de Finanças</h1>
+      <p className="month-label">Novembro</p>
 
       {/* Abas para alternar entre Meus Dados e Dados Dela */}
       <div className="tabs">
@@ -177,26 +211,11 @@ function App() {
         >
           💕 Dados Dela
         </button>
-        <button 
-          className={`tab ${activeTab === 'all' ? 'active' : ''}`}
-          onClick={() => setActiveTab('all')}
-        >
-          📊 Todos Juntos
-        </button>
-      </div>
-
-      {/* Selecionar quem está adicionando */}
-      <div className="user-selector">
-        <label>Adicionar transação como:</label>
-        <select value={userName} onChange={(e) => setUserName(e.target.value)}>
-          <option value="me">👤 Eu</option>
-          <option value="her">💕 Ela</option>
-        </select>
       </div>
 
       <div className="balance">
-        <h2>Saldo {activeTab === 'me' ? 'Meu' : activeTab === 'her' ? 'Dela' : 'Total'}</h2>
-        <div className="amount">{formatCurrency(activeTab === 'all' ? totalBalance : balance)}</div>
+        <h2>Saldo {activeTab === 'me' ? 'Meu' : 'Dela'}</h2>
+        <div className="amount">{formatCurrency(balance)}</div>
       </div>
 
       <div className="income-section">
@@ -280,23 +299,18 @@ function App() {
       </div>
 
       <div className="transactions">
-        <h3>Histórico de Transações {activeTab === 'me' ? '(Minhas)' : activeTab === 'her' ? '(Delas)' : '(Todos)'}</h3>
-        {(activeTab === 'all' ? transactions : filteredTransactions).length === 0 ? (
+        <h3>Histórico de Transações {activeTab === 'me' ? '(Minhas)' : '(Delas)'}</h3>
+        {filteredTransactions.length === 0 ? (
           <div className="empty-state">
             <p>Nenhuma transação ainda. Adicione sua primeira transação acima! 📝</p>
           </div>
         ) : (
           <div className="transaction-list">
-            {(activeTab === 'all' ? transactions : filteredTransactions).map(transaction => (
+            {filteredTransactions.map(transaction => (
               <div key={transaction.id} className={`transaction-item ${transaction.type}`}>
                 <div className="transaction-info">
                   <div className="description">
                     {transaction.description}
-                    {activeTab === 'all' && (
-                      <span className="owner-badge">
-                        {transaction.owner === 'me' ? ' 👤' : ' 💕'}
-                      </span>
-                    )}
                   </div>
                   <div className="date">{transaction.dateFormatted || transaction.date}</div>
                 </div>
@@ -314,6 +328,13 @@ function App() {
             ))}
           </div>
         )}
+      </div>
+
+      {/* Mensagem romântica */}
+      <div className="love-message">
+        <span className="love-text">M</span>
+        <span className="heart">❤️</span>
+        <span className="love-text">A</span>
       </div>
     </div>
   )

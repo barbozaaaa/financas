@@ -1,0 +1,69 @@
+╔══════════════════════════════════════════════════════╗
+║   DEPLOY NO VERCEL - PASSO A PASSO                   ║
+╚══════════════════════════════════════════════════════╝
+
+✅ Git já está configurado!
+✅ Código já está commitado!
+
+Agora você só precisa:
+
+═══════════════════════════════════════════════════════
+
+📝 PASSO 1: Criar Repositório no GitHub
+---------------------------------------
+1. Acesse: https://github.com/new
+2. Nome: fiancas-app (ou qualquer nome)
+3. Deixe público ou privado
+4. NÃO marque "Add README"
+5. Clique em "Create repository"
+
+═══════════════════════════════════════════════════════
+
+💻 PASSO 2: Conectar e Enviar para GitHub
+------------------------------------------
+Abra o CMD e execute:
+
+cd "C:\Users\Barboza\OneDrive\Documentos\fiancas2"
+
+git remote add origin https://github.com/SEU_USUARIO/fiancas-app.git
+(Substitua SEU_USUARIO pelo seu usuário do GitHub)
+
+git branch -M main
+
+git push -u origin main
+
+═══════════════════════════════════════════════════════
+
+🚀 PASSO 3: Deploy no Vercel
+-----------------------------
+1. Acesse: https://vercel.com
+2. Clique em "Sign Up" ou "Login"
+3. Escolha "Continue with GitHub"
+4. Autorize o Vercel
+5. Clique em "Add New Project"
+6. Selecione o repositório "fiancas-app"
+7. Configure:
+   - Framework: Vite
+   - Build Command: npm run build
+   - Output Directory: dist
+8. Clique em "Deploy"
+
+═══════════════════════════════════════════════════════
+
+✅ PRONTO!
+----------
+O Vercel vai te dar um link tipo:
+https://fiancas-app.vercel.app
+
+Esse é o link que você e ela vão usar no celular!
+
+═══════════════════════════════════════════════════════
+
+💡 DICA:
+--------
+Depois disso, toda vez que você fizer alterações e 
+fizer "git push", o Vercel faz deploy automático!
+
+═══════════════════════════════════════════════════════
+
+Veja o arquivo DEPLOY-VERCEL.md para mais detalhes!
