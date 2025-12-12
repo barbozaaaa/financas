@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { db } from './firebase'
 import { collection, addDoc, deleteDoc, doc, onSnapshot, setDoc, getDoc } from 'firebase/firestore'
 
+// App de controle financeiro para Andrey e Maria
+
 function App() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
