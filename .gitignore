@@ -12,9 +12,6 @@ dist
 dist-ssr
 *.local
 
-# Firebase config (não commitar credenciais)
-src/firebase.js
-
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
