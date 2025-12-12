@@ -9,12 +9,14 @@ function App() {
   const [type, setType] = useState('income')
   const [monthlyIncome, setMonthlyIncome] = useState(0)
   const [monthlyIncomeInput, setMonthlyIncomeInput] = useState('')
-  const [activeTab, setActiveTab] = useState('me') // 'me' ou 'her'
-  const [userName, setUserName] = useState(activeTab) // 'me' ou 'her' - sempre igual à aba ativa
+  const [activeTab, setActiveTab] = useState('andrey') // 'andrey' ou 'maria'
 
-  // Carregar dados do Firestore em tempo real
+  // Carregar dados do Firestore em tempo real - collections separadas
   useEffect(() => {
-    const transactionsRef = collection(db, 'transactions')
+    // Collection baseada na aba ativa
+    const collectionName = activeTab === 'andrey' ? 'transactions_andrey' : 'transactions_maria'
+    const transactionsRef = collection(db, collectionName)
+    
     const unsubscribe = onSnapshot(transactionsRef, (snapshot) => {
       const transactionsData = snapshot.docs.map(doc => ({
         id: doc.id,
@@ -29,33 +31,37 @@ function App() {
       setTransactions(transactionsData)
     })
 
-    // Carregar renda mensal
-    const incomeRef = doc(db, 'settings', 'monthlyIncome')
+    // Carregar renda mensal (separada por pessoa)
+    const incomeCollection = activeTab === 'andrey' ? 'settings_andrey' : 'settings_maria'
+    const incomeRef = doc(db, incomeCollection, 'monthlyIncome')
     getDoc(incomeRef).then((docSnap) => {
       if (docSnap.exists()) {
         const income = docSnap.data().value
         setMonthlyIncome(income)
         setMonthlyIncomeInput(income.toString())
+      } else {
+        setMonthlyIncome(0)
+        setMonthlyIncomeInput('')
       }
     })
 
     return () => unsubscribe()
-  }, [])
+  }, [activeTab])
 
-  // Filtrar transações por aba ativa
-  const filteredTransactions = transactions.filter(t => t.owner === activeTab)
+  // Transações já vêm filtradas da collection correta
+  const filteredTransactions = transactions
   
   // Calcular saldo total (apenas transações, renda mensal já está incluída como transação)
   const balance = filteredTransactions.reduce((total, transaction) => {
     return total + (transaction.type === 'income' ? transaction.amount : -transaction.amount)
   }, 0)
 
-  // Calcular total de receitas (apenas da aba ativa)
+  // Calcular total de receitas
   const totalIncome = filteredTransactions
     .filter(t => t.type === 'income')
     .reduce((total, transaction) => total + transaction.amount, 0)
   
-  // Calcular total de despesas (apenas da aba ativa)
+  // Calcular total de despesas
   const totalExpenses = filteredTransactions
     .filter(t => t.type === 'expense')
     .reduce((total, transaction) => total + transaction.amount, 0)
@@ -66,18 +72,22 @@ function App() {
     const income = parseFloat(monthlyIncomeInput)
     if (income > 0) {
       try {
-        const incomeRef = doc(db, 'settings', 'monthlyIncome')
+        // Salvar renda mensal na collection correta
+        const incomeCollection = activeTab === 'andrey' ? 'settings_andrey' : 'settings_maria'
+        const incomeRef = doc(db, incomeCollection, 'monthlyIncome')
         await setDoc(incomeRef, { value: income })
         
         // Verificar se já existe uma transação de "Renda Mensal" deste mês
         const currentMonth = new Date().getMonth()
         const currentYear = new Date().getFullYear()
         const existingIncome = transactions.find(t => 
-          t.owner === 'me' && 
           t.description === 'Renda Mensal' &&
           new Date(t.date).getMonth() === currentMonth &&
           new Date(t.date).getFullYear() === currentYear
         )
+        
+        // Collection de transações baseada na aba ativa
+        const transactionsCollection = activeTab === 'andrey' ? 'transactions_andrey' : 'transactions_maria'
         
         if (!existingIncome) {
           // Adicionar automaticamente como transação de renda
@@ -85,7 +95,6 @@ function App() {
             description: 'Renda Mensal',
             amount: income,
             type: 'income',
-            owner: 'me', // Sempre adiciona como "me"
             date: new Date().toISOString(),
             dateFormatted: new Date().toLocaleDateString('pt-BR', {
               day: '2-digit',
@@ -95,10 +104,10 @@ function App() {
               minute: '2-digit'
             })
           }
-          await addDoc(collection(db, 'transactions'), incomeTransaction)
+          await addDoc(collection(db, transactionsCollection), incomeTransaction)
         } else {
           // Atualizar a transação existente
-          await setDoc(doc(db, 'transactions', existingIncome.id), {
+          await setDoc(doc(db, transactionsCollection, existingIncome.id), {
             ...existingIncome,
             amount: income
           })
@@ -117,15 +126,25 @@ function App() {
 
   // Resetar o mês (apenas da aba ativa)
   const resetMonth = async () => {
-    const tabName = activeTab === 'me' ? 'seus' : 'dela'
-    if (window.confirm(`Tem certeza que deseja resetar o mês? Todas as transações ${tabName} serão excluídas!`)) {
+    const personName = activeTab === 'andrey' ? 'do Andrey' : 'da Maria'
+    if (window.confirm(`Tem certeza que deseja resetar o mês? Todas as transações ${personName} serão excluídas!`)) {
       try {
-        // Deletar apenas transações da aba ativa
-        const transactionsToDelete = transactions.filter(t => t.owner === activeTab)
-        const deletePromises = transactionsToDelete.map(transaction => 
-          deleteDoc(doc(db, 'transactions', transaction.id))
+        // Collection de transações baseada na aba ativa
+        const transactionsCollection = activeTab === 'andrey' ? 'transactions_andrey' : 'transactions_maria'
+        
+        // Deletar todas as transações da collection
+        const deletePromises = transactions.map(transaction => 
+          deleteDoc(doc(db, transactionsCollection, transaction.id))
         )
         await Promise.all(deletePromises)
+        
+        // Resetar renda mensal
+        const incomeCollection = activeTab === 'andrey' ? 'settings_andrey' : 'settings_maria'
+        const incomeRef = doc(db, incomeCollection, 'monthlyIncome')
+        await setDoc(incomeRef, { value: 0 })
+        setMonthlyIncome(0)
+        setMonthlyIncomeInput('')
+        
         alert('Mês resetado com sucesso!')
       } catch (error) {
         console.error('Erro ao resetar:', error)
@@ -143,11 +162,13 @@ function App() {
     }
 
     try {
+      // Collection baseada na aba ativa (separada)
+      const transactionsCollection = activeTab === 'andrey' ? 'transactions_andrey' : 'transactions_maria'
+      
       const newTransaction = {
         description: description.trim(),
         amount: parseFloat(amount),
         type: type,
-        owner: userName, // Adiciona o dono da transação
         date: new Date().toISOString(),
         dateFormatted: new Date().toLocaleDateString('pt-BR', {
           day: '2-digit',
@@ -158,7 +179,7 @@ function App() {
         })
       }
 
-      await addDoc(collection(db, 'transactions'), newTransaction)
+      await addDoc(collection(db, transactionsCollection), newTransaction)
       setDescription('')
       setAmount('')
     } catch (error) {
@@ -171,7 +192,9 @@ function App() {
   const deleteTransaction = async (id) => {
     if (window.confirm('Tem certeza que deseja excluir esta transação?')) {
       try {
-        await deleteDoc(doc(db, 'transactions', id))
+        // Collection baseada na aba ativa
+        const transactionsCollection = activeTab === 'andrey' ? 'transactions_andrey' : 'transactions_maria'
+        await deleteDoc(doc(db, transactionsCollection, id))
       } catch (error) {
         console.error('Erro ao deletar transação:', error)
         alert('Erro ao deletar transação. Tente novamente.')
@@ -187,34 +210,29 @@ function App() {
     }).format(value)
   }
 
-  // Atualizar userName quando mudar a aba
-  useEffect(() => {
-    setUserName(activeTab)
-  }, [activeTab])
-
   return (
     <div className="app">
       <h1>💰 Controle de Finanças</h1>
       <p className="month-label">Novembro</p>
 
-      {/* Abas para alternar entre Meus Dados e Dados Dela */}
+      {/* Abas para alternar entre Andrey e Maria */}
       <div className="tabs">
         <button 
-          className={`tab ${activeTab === 'me' ? 'active' : ''}`}
-          onClick={() => setActiveTab('me')}
+          className={`tab ${activeTab === 'andrey' ? 'active' : ''}`}
+          onClick={() => setActiveTab('andrey')}
         >
-          👤 Meus Dados
+          👤 Andrey
         </button>
         <button 
-          className={`tab ${activeTab === 'her' ? 'active' : ''}`}
-          onClick={() => setActiveTab('her')}
+          className={`tab ${activeTab === 'maria' ? 'active' : ''}`}
+          onClick={() => setActiveTab('maria')}
         >
-          💕 Dados Dela
+          💕 Maria
         </button>
       </div>
 
       <div className="balance">
-        <h2>Saldo {activeTab === 'me' ? 'Meu' : 'Dela'}</h2>
+        <h2>Saldo {activeTab === 'andrey' ? 'do Andrey' : 'da Maria'}</h2>
         <div className="amount">{formatCurrency(balance)}</div>
       </div>
 
@@ -299,7 +317,7 @@ function App() {
       </div>
 
       <div className="transactions">
-        <h3>Histórico de Transações {activeTab === 'me' ? '(Minhas)' : '(Delas)'}</h3>
+        <h3>Histórico de Transações {activeTab === 'andrey' ? '(Andrey)' : '(Maria)'}</h3>
         {filteredTransactions.length === 0 ? (
           <div className="empty-state">
             <p>Nenhuma transação ainda. Adicione sua primeira transação acima! 📝</p>
