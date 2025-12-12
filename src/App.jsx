@@ -232,6 +232,15 @@ function App() {
     }).format(value)
   }
 
+  // Obter nome do mês atual
+  const getCurrentMonth = () => {
+    const months = [
+      'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+    ]
+    return months[new Date().getMonth()]
+  }
+
   // Mostrar loading ou erro
   if (loading) {
     return (
@@ -263,7 +272,7 @@ function App() {
   return (
     <div className="app">
       <h1>💰 Controle de Finanças</h1>
-      <p className="month-label">Novembro</p>
+      <p className="month-label">{getCurrentMonth()}</p>
 
       {/* Abas para alternar entre Andrey e Maria */}
       <div className="tabs">
