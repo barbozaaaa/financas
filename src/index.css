@@ -193,6 +193,36 @@ h1 {
   color: #667eea;
 }
 
+.income-item-remaining {
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn-received {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-received:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+}
+
+.btn-received:active {
+  transform: translateY(0);
+}
+
 .income-form {
   margin-bottom: 15px;
 }
@@ -527,6 +557,16 @@ h1 {
     flex-direction: column;
     align-items: flex-start;
     gap: 5px;
+  }
+
+  .income-item-remaining {
+    gap: 10px;
+  }
+
+  .btn-received {
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
   }
 
   .income-label {

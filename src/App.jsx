@@ -146,6 +146,41 @@ function App() {
     }
   }
 
+  // Marcar valor faltante como recebido
+  const handleMarkAsReceived = async () => {
+    const remaining = monthlyIncome - totalIncome
+    if (remaining <= 0) {
+      alert('Você já recebeu toda a renda mensal!')
+      return
+    }
+
+    if (window.confirm(`Marcar ${formatCurrency(remaining)} como recebido?`)) {
+      try {
+        const transactionsCollection = activeTab === 'andrey' ? 'transactions_andrey' : 'transactions_maria'
+        
+        const receivedTransaction = {
+          description: 'Recebimento Completo da Renda',
+          amount: remaining,
+          type: 'income',
+          date: new Date().toISOString(),
+          dateFormatted: new Date().toLocaleDateString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          })
+        }
+        
+        await addDoc(collection(db, transactionsCollection), receivedTransaction)
+        alert('Valor marcado como recebido com sucesso!')
+      } catch (error) {
+        console.error('Erro ao marcar como recebido:', error)
+        alert('Erro ao marcar como recebido. Tente novamente.')
+      }
+    }
+  }
+
   // Resetar o mês (apenas da aba ativa)
   const resetMonth = async () => {
     const personName = activeTab === 'andrey' ? 'do Andrey' : 'da Maria'
@@ -307,11 +342,25 @@ function App() {
             <span className="income-value income-received">{formatCurrency(totalIncome)}</span>
           </div>
           {monthlyIncome > 0 && (
-            <div className="income-item">
-              <span className="income-label">Falta Receber:</span>
-              <span className="income-value income-remaining">
-                {formatCurrency(Math.max(0, monthlyIncome - totalIncome))}
-              </span>
+            <div className="income-item income-item-remaining">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%' }}>
+                <div style={{ flex: 1 }}>
+                  <span className="income-label">Falta Receber:</span>
+                  <span className="income-value income-remaining">
+                    {formatCurrency(Math.max(0, monthlyIncome - totalIncome))}
+                  </span>
+                </div>
+                {monthlyIncome - totalIncome > 0 && (
+                  <button
+                    type="button"
+                    className="btn-received"
+                    onClick={handleMarkAsReceived}
+                    title="Marcar como recebido"
+                  >
+                    ✓ Recebido
+                  </button>
+                )}
+              </div>
             </div>
           )}
         </div>
