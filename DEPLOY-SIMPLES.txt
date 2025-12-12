@@ -1,0 +1,59 @@
+========================================
+  COMO FAZER DEPLOY (PASSO A PASSO)
+========================================
+
+Para você e ela usarem no celular, você PRECISA fazer deploy.
+
+PASSO 1 - Abrir CMD:
+-------------------
+1. Pressione Windows + R
+2. Digite: cmd
+3. Pressione Enter
+
+PASSO 2 - Ir para a pasta:
+--------------------------
+Digite exatamente isso (copie e cole):
+
+cd "C:\Users\Barboza\OneDrive\Documentos\fiancas2"
+
+Pressione Enter
+
+PASSO 3 - Fazer Login:
+---------------------
+Digite:
+
+firebase login
+
+Pressione Enter
+- Vai abrir o navegador
+- Faça login com sua conta Google
+- Volte para o CMD quando aparecer "Success!"
+
+PASSO 4 - Fazer Deploy:
+----------------------
+Digite:
+
+firebase deploy --only hosting
+
+Pressione Enter
+- Vai demorar alguns segundos
+- No final vai aparecer um link tipo: 
+  https://financas-833ad.web.app
+- Esse é o link do seu site!
+
+PASSO 5 - Usar no Celular:
+--------------------------
+1. Envie o link para ela
+2. Abra o link no celular dela
+3. Abra o link no seu celular
+4. Pronto! Vocês dois vão ver os mesmos dados!
+
+========================================
+  DICAS:
+========================================
+- Se der erro de login, tente novamente
+- O link do site será algo como:
+  https://financas-833ad.web.app
+- Depois de fazer deploy uma vez, 
+  você só precisa executar o passo 4
+  para atualizar o site

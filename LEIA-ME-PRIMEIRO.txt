@@ -1,0 +1,40 @@
+╔══════════════════════════════════════════════════════╗
+║   IMPORTANTE: PARA USAR NO CELULAR                  ║
+╚══════════════════════════════════════════════════════╝
+
+Para você e ela usarem no celular, você PRECISA fazer deploy.
+
+Os dados JÁ estão configurados para salvar no Firebase.
+Mas o SITE precisa estar online para vocês acessarem.
+
+═══════════════════════════════════════════════════════
+
+📱 O QUE VOCÊ PRECISA FAZER:
+
+1. Abra o CMD (Windows + R, digite "cmd")
+
+2. Cole este comando:
+   cd "C:\Users\Barboza\OneDrive\Documentos\fiancas2"
+
+3. Cole este comando:
+   firebase login
+   (Faça login no navegador que abrir)
+
+4. Cole este comando:
+   firebase deploy --only hosting
+
+5. Copie o link que aparecer (tipo: https://financas-833ad.web.app)
+
+6. Envie o link para ela e use no seu celular também!
+
+═══════════════════════════════════════════════════════
+
+✅ DEPOIS DO DEPLOY:
+- Você acessa o link no seu celular
+- Ela acessa o mesmo link no celular dela
+- Vocês dois veem os mesmos dados (sincronizado!)
+- Cada um tem sua própria aba (Meus Dados / Dados Dela)
+
+═══════════════════════════════════════════════════════
+
+Se tiver dificuldade, me avise qual passo deu erro!

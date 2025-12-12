@@ -1,0 +1,397 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: 20px;
+}
+
+#root {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.app {
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 30px;
+  font-size: 2rem;
+}
+
+.balance {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 25px;
+  border-radius: 15px;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.balance h2 {
+  font-size: 0.9rem;
+  font-weight: 400;
+  margin-bottom: 10px;
+  opacity: 0.9;
+}
+
+.balance .amount {
+  font-size: 2.5rem;
+  font-weight: bold;
+}
+
+.form-section {
+  background: #f8f9fa;
+  padding: 25px;
+  border-radius: 15px;
+  margin-bottom: 30px;
+}
+
+.form-section h3 {
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #555;
+  font-weight: 500;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.btn-secondary:hover {
+  box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  margin-top: 15px;
+}
+
+.btn-danger:hover {
+  box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+}
+
+.income-section {
+  background: #f8f9fa;
+  padding: 25px;
+  border-radius: 15px;
+  margin-bottom: 30px;
+}
+
+.income-section h3 {
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.income-info {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.income-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.income-label {
+  font-weight: 500;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.income-value {
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.income-received {
+  color: #10b981;
+}
+
+.income-remaining {
+  color: #667eea;
+}
+
+.income-form {
+  margin-bottom: 15px;
+}
+
+.transactions {
+  margin-top: 30px;
+}
+
+.transactions h3 {
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.transaction-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.transaction-item {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-left: 4px solid;
+  transition: transform 0.2s;
+}
+
+.transaction-item:hover {
+  transform: translateX(5px);
+}
+
+.transaction-item.income {
+  border-left-color: #10b981;
+}
+
+.transaction-item.expense {
+  border-left-color: #ef4444;
+}
+
+.transaction-info {
+  flex: 1;
+}
+
+.transaction-info .description {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.transaction-info .date {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.transaction-amount {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.transaction-item.income .transaction-amount {
+  color: #10b981;
+}
+
+.transaction-item.expense .transaction-amount {
+  color: #ef4444;
+}
+
+.delete-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-left: 10px;
+  transition: background 0.2s;
+}
+
+.delete-btn:hover {
+  background: #dc2626;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #999;
+}
+
+.empty-state p {
+  font-size: 1.1rem;
+}
+
+/* Abas */
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.tab {
+  padding: 12px 20px;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #666;
+  transition: all 0.3s;
+  margin-bottom: -2px;
+}
+
+.tab:hover {
+  color: #667eea;
+  background: #f8f9fa;
+}
+
+.tab.active {
+  color: #667eea;
+  border-bottom-color: #667eea;
+  background: #f8f9fa;
+}
+
+/* Seletor de usuário */
+.user-selector {
+  background: #f0f4ff;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-selector label {
+  font-weight: 500;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+.user-selector select {
+  padding: 8px 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+
+.user-selector select:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+/* Badge do dono */
+.owner-badge {
+  margin-left: 8px;
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+@media (max-width: 600px) {
+  .app {
+    padding: 20px;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  .balance .amount {
+    font-size: 2rem;
+  }
+
+  .tabs {
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .tab {
+    width: 100%;
+    text-align: left;
+    border-bottom: none;
+    border-left: 3px solid transparent;
+    margin-bottom: 0;
+  }
+
+  .tab.active {
+    border-bottom-color: transparent;
+    border-left-color: #667eea;
+  }
+
+  .user-selector {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .user-selector select {
+    width: 100%;
+  }
+}
+
